@@ -1,0 +1,50 @@
+{
+  "packageId": "com.fincalcpro.app",
+  "host": "your-domain.com",
+  "name": "FinCalc Pro - Financial Calculator",
+  "launcherName": "FinCalc Pro",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#0f1117",
+  "backgroundColor": "#0f1117",
+  "startUrl": "/index.html",
+  "iconUrl": "https://your-domain.com/icons/icon-512.png",
+  "maskableIconUrl": "https://your-domain.com/icons/icon-512.png",
+  "appVersion": "1",
+  "appVersionName": "1.0.0",
+  "shortcuts": [
+    {
+      "name": "EMI Calculator",
+      "shortName": "EMI",
+      "url": "/index.html#loan",
+      "icons": [{ "src": "https://your-domain.com/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "SIP Calculator",
+      "shortName": "SIP",
+      "url": "/index.html#invest",
+      "icons": [{ "src": "https://your-domain.com/icons/icon-96.png", "sizes": "96x96" }]
+    }
+  ],
+  "signingMode": "none",
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://your-domain.com/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": { "enabled": false },
+    "playBilling": { "enabled": false }
+  },
+  "alphaDependencies": { "enabled": false },
+  "enableNotifications": false,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://your-domain.com/",
+  "minSdkVersion": 21,
+  "navigationColor": "#0f1117",
+  "navigationColorDark": "#0f1117",
+  "navigationDividerColor": "#0f1117",
+  "navigationDividerColorDark": "#0f1117",
+  "retainedBundles": [],
+  "serviceAccountJsonFile": "",
+  "useWebmanifestColors": false
+}

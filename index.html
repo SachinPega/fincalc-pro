@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="theme-color" content="#0f1117"/>
+<meta name="description" content="FinCalc Pro - Financial & Business Calculator. EMI, SIP, Tax, GST, ROI and more. Free."/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="FinCalc Pro"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<title>FinCalc Pro - Financial Calculator</title>
+
+<!-- ══ ADMOB: Replace ca-app-pub-XXXXXXXX with your real AdMob Publisher ID ══ -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#21263a;
+  --border:rgba(255,255,255,0.08);--accent:#00d4aa;--accent2:#7c6aff;
+  --text:#f0f2ff;--muted:#7a7f9a;--danger:#ff5c5c;
+}
+html,body{height:100%;overscroll-behavior:none}
+body{
+  font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100dvh;display:flex;flex-direction:column;align-items:center;
+  padding:max(env(safe-area-inset-top),16px) 12px max(env(safe-area-inset-bottom),80px);
+}
+
+/* ── AD BANNER ── */
+.ad-banner{
+  width:100%;max-width:420px;background:var(--surface);
+  border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;margin-bottom:14px;min-height:60px;
+  display:flex;align-items:center;justify-content:center;
+}
+.ad-label{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.ad-placeholder{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:100%;padding:8px;
+}
+.ad-slot{width:320px;height:50px;background:rgba(124,106,255,0.07);border-radius:8px;border:1px dashed rgba(124,106,255,0.2);display:flex;align-items:center;justify-content:center;}
+.ad-slot span{font-size:10px;color:var(--muted);}
+
+/* ── APP TITLE ── */
+h1.app-title{
+  font-size:13px;font-weight:500;letter-spacing:3px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:14px;margin-top:4px;
+}
+
+/* ── TABS ── */
+.tabs{
+  display:flex;gap:4px;background:var(--surface);border-radius:14px;
+  padding:4px;margin-bottom:16px;border:1px solid var(--border);
+  width:100%;max-width:420px;
+}
+.tab{
+  flex:1;padding:8px 4px;border:none;background:transparent;color:var(--muted);
+  font-family:'Sora',sans-serif;font-size:11px;font-weight:500;border-radius:10px;
+  cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;
+  -webkit-tap-highlight-color:transparent;
+}
+.tab.active{background:var(--accent2);color:#fff;}
+
+.calculator-wrap{width:100%;max-width:420px;}
+
+/* ── DISPLAY ── */
+.display-box{
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:20px 24px 16px;margin-bottom:12px;min-height:110px;
+  display:flex;flex-direction:column;justify-content:flex-end;
+}
+.display-expr{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);text-align:right;min-height:18px;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.display-main{font-family:'DM Mono',monospace;font-size:42px;font-weight:500;text-align:right;color:var(--text);line-height:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:font-size 0.1s;}
+.display-main.small{font-size:28px;}
+.display-main.xsmall{font-size:20px;}
+
+/* ── KEYPAD ── */
+.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.key{
+  border:none;border-radius:14px;font-family:'Sora',sans-serif;font-size:18px;
+  font-weight:500;height:70px;cursor:pointer;transition:transform 0.1s,opacity 0.1s;
+  outline:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.key:active{transform:scale(0.93);opacity:0.85;}
+.key.num{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.key.op{background:rgba(124,106,255,0.15);color:var(--accent2);border:1px solid rgba(124,106,255,0.25);font-size:20px;}
+.key.fn{background:rgba(255,255,255,0.05);color:var(--muted);font-size:14px;border:1px solid var(--border);}
+.key.eq{background:var(--accent);color:#0f1117;font-size:24px;}
+.key.danger-fn{background:rgba(255,92,92,0.1);color:var(--danger);border:1px solid rgba(255,92,92,0.2);font-size:14px;}
+.key.zero{grid-column:span 2;}
+
+/* ── PANELS ── */
+.panel-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:12px;}
+.panel-title{font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+.field-group{margin-bottom:14px;}
+.field-label{font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:500;letter-spacing:0.5px;}
+.field-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:15px;outline:none;transition:border-color 0.2s;-webkit-appearance:none;}
+.field-input:focus{border-color:var(--accent2);}
+.field-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;}
+.calc-btn{width:100%;background:var(--accent);color:#0f1117;border:none;border-radius:14px;padding:14px;font-family:'Sora',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:opacity 0.2s,transform 0.1s;margin-top:4px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+.calc-btn:active{transform:scale(0.97);opacity:0.85;}
+.result-box{background:linear-gradient(135deg,rgba(0,212,170,0.1),rgba(124,106,255,0.08));border:1px solid rgba(0,212,170,0.25);border-radius:16px;padding:18px 20px;margin-top:14px;}
+.result-label{font-size:11px;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:4px;}
+.result-value{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--text);margin-bottom:8px;}
+.result-breakdown{display:flex;flex-direction:column;gap:4px;}
+.result-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);}
+.result-row span:last-child{font-family:'DM Mono',monospace;color:var(--text);}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.history-list{display:flex;flex-direction:column;gap:6px;}
+.history-item{display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border-radius:10px;padding:10px 14px;font-size:12px;}
+.history-expr{color:var(--muted);font-family:'DM Mono',monospace;}
+.history-val{font-family:'DM Mono',monospace;color:var(--accent);font-size:14px;}
+.section-sub{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.section-sub::-webkit-scrollbar{display:none;}
+.sub-tab{flex:1;min-width:64px;padding:7px 4px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Sora',sans-serif;font-size:10px;font-weight:500;border-radius:8px;cursor:pointer;transition:all 0.2s;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+.sub-tab.active{background:rgba(0,212,170,0.15);color:var(--accent);border-color:rgba(0,212,170,0.3);}
+
+/* ── BOTTOM AD ── */
+.bottom-ad{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--bg);border-top:1px solid var(--border);
+  padding:8px 12px max(env(safe-area-inset-bottom),8px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:50;
+}
+.bottom-ad-inner{width:320px;height:50px;background:var(--surface);border-radius:8px;border:1px dashed rgba(0,212,170,0.2);display:flex;align-items:center;justify-content:center;flex-direction:column;}
+
+/* ── INSTALL BANNER ── */
+#install-banner{display:none;position:fixed;bottom:80px;left:12px;right:12px;background:var(--surface2);border:1px solid rgba(0,212,170,0.3);border-radius:16px;padding:14px 16px;align-items:center;justify-content:space-between;gap:12px;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+#install-banner.show{display:flex;}
+.install-text{font-size:13px;color:var(--text);}
+.install-text span{color:var(--accent);font-weight:600;}
+.install-btn{background:var(--accent);color:#0f1117;border:none;border-radius:10px;padding:8px 16px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.dismiss-btn{background:transparent;color:var(--muted);border:none;cursor:pointer;font-size:18px;padding:4px;}
+</style>
+</head>
+<body>
+
+<!-- TOP AD BANNER -->
+<div class="ad-banner">
+  <div class="ad-placeholder">
+    <div class="ad-label">Advertisement</div>
+    <!-- REPLACE THIS with your real AdMob ad unit after getting approved -->
+    <!-- <ins class="adsbygoogle" style="display:inline-block;width:320px;height:50px" data-ad-client="ca-app-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins> -->
+    <div class="ad-slot"><span>AdMob Banner Ad (320×50) — Add your unit ID</span></div>
+  </div>
+</div>
+
+<h1 class="app-title">FinCalc Pro</h1>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('basic')">Basic</button>
+  <button class="tab" onclick="switchTab('loan')">Loan</button>
+  <button class="tab" onclick="switchTab('invest')">Invest</button>
+  <button class="tab" onclick="switchTab('tax')">Tax</button>
+</div>
+
+<div class="calculator-wrap">
+
+  <!-- BASIC -->
+  <div id="tab-basic">
+    <div class="display-box">
+      <div class="display-expr" id="expr"></div>
+      <div class="display-main" id="display">0</div>
+    </div>
+    <div class="keypad">
+      <button class="key danger-fn" onclick="clearAll()">AC</button>
+      <button class="key fn" onclick="toggleSign()">+/−</button>
+      <button class="key fn" onclick="percent()">%</button>
+      <button class="key op" onclick="inputOp('÷')">÷</button>
+      <button class="key num" onclick="inputNum('7')">7</button>
+      <button class="key num" onclick="inputNum('8')">8</button>
+      <button class="key num" onclick="inputNum('9')">9</button>
+      <button class="key op" onclick="inputOp('×')">×</button>
+      <button class="key num" onclick="inputNum('4')">4</button>
+      <button class="key num" onclick="inputNum('5')">5</button>
+      <button class="key num" onclick="inputNum('6')">6</button>
+      <button class="key op" onclick="inputOp('−')">−</button>
+      <button class="key num" onclick="inputNum('1')">1</button>
+      <button class="key num" onclick="inputNum('2')">2</button>
+      <button class="key num" onclick="inputNum('3')">3</button>
+      <button class="key op" onclick="inputOp('+')">+</button>
+      <button class="key num zero" onclick="inputNum('0')">0</button>
+      <button class="key num" onclick="inputDecimal()">.</button>
+      <button class="key eq" onclick="calculate()">=</button>
+    </div>
+    <div style="margin-top:12px;">
+      <div class="panel-card" id="hist-panel" style="display:none;">
+        <div class="panel-title">History</div>
+        <div class="history-list" id="hist-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOAN -->
+  <div id="tab-loan" style="display:none;">
+    <div class="panel-card">
+      <div class="panel-title">Loan / EMI Calculator</div>
+      <div class="field-group">
+        <div class="field-label">Loan Amount (₹)</div>
+        <input class="field-input" id="loan-amount" type="number" inputmode="decimal" value="500000"/>
+      </div>
+      <div class="row-2">
+        <div class="field-group">
+          <div class="field-label">Interest Rate (% p.a.)</div>
+          <input class="field-input" id="loan-rate" type="number" inputmode="decimal" value="8.5" step="0.1"/>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Tenure (Years)</div>
+          <input class="field-input" id="loan-years" type="number" inputmode="decimal" value="5"/>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcLoan()">Calculate EMI</button>
+      <div class="result-box" id="loan-result" style="display:none;">
+        <div class="result-label">Monthly EMI</div>
+        <div class="result-value" id="loan-emi"></div>
+        <div class="result-breakdown">
+          <div class="result-row"><span>Total Payment</span><span id="loan-total"></span></div>
+          <div class="result-row"><span>Total Interest</span><span id="loan-interest"></span></div>
+          <div class="result-row"><span>Principal</span><span id="loan-principal"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVEST -->
+  <div id="tab-invest" style="display:none;">
+    <div class="panel-card">
+      <div class="section-sub">
+        <button class="sub-tab active" onclick="switchInvest('sip')">SIP</button>
+        <button class="sub-tab" onclick="switchInvest('lump')">Lump Sum</button>
+        <button class="sub-tab" onclick="switchInvest('fd')">FD / RD</button>
+        <button class="sub-tab" onclick="switchInvest('roi')">ROI</button>
+      </div>
+      <div id="invest-sip">
+        <div class="panel-title">SIP Returns</div>
+        <div class="field-group"><div class="field-label">Monthly Investment (₹)</div><input class="field-input" id="sip-monthly" type="number" inputmode="decimal" value="5000"/></div>
+        <div class="row-2">
+          <div class="field-group"><div class="field-label">Return (% p.a.)</div><input class="field-input" id="sip-rate" type="number" inputmode="decimal" value="12"/></div>
+          <div class="field-group"><div class="field-label">Duration (Years)</div><input class="field-input" id="sip-years" type="number" inputmode="decimal" value="10"/></div>
+        </div>
+        <button class="calc-btn" onclick="calcSip()">Calculate</button>
+      </div>
+      <div id="invest-lump" style="display:none;">
+        <div class="panel-title">Lump Sum Growth</div>
+        <div class="field-group"><div class="field-label">Investment Amount (₹)</div><input class="field-input" id="lump-amt" type="number" inputmode="decimal" value="100000"/></div>
+        <div class="row-2">
+          <div class="field-group"><div class="field-label">Return (% p.a.)</div><input class="field-input" id="lump-rate" type="number" inputmode="decimal" value="12"/></div>
+          <div class="field-group"><div class="field-label">Years</div><input class="field-input" id="lump-years" type="number" inputmode="decimal" value="10"/></div>
+        </div>
+        <button class="calc-btn" onclick="calcLump()">Calculate</button>
+      </div>
+      <div id="invest-fd" style="display:none;">
+        <div class="panel-title">FD / RD Maturity</div>
+        <div class="field-group"><div class="field-label">Principal Amount (₹)</div><input class="field-input" id="fd-amt" type="number" inputmode="decimal" value="100000"/></div>
+        <div class="row-2">
+          <div class="field-group"><div class="field-label">Rate (% p.a.)</div><input class="field-input" id="fd-rate" type="number" inputmode="decimal" value="7"/></div>
+          <div class="field-group"><div class="field-label">Years</div><input class="field-input" id="fd-years" type="number" inputmode="decimal" value="3"/></div>
+        </div>
+        <div class="field-group"><div class="field-label">Compounding</div>
+          <select class="field-select" id="fd-comp"><option value="4">Quarterly</option><option value="12">Monthly</option><option value="2">Half-yearly</option><option value="1">Annually</option></select>
+        </div>
+        <button class="calc-btn" onclick="calcFD()">Calculate</button>
+      </div>
+      <div id="invest-roi" style="display:none;">
+        <div class="panel-title">ROI Calculator</div>
+        <div class="row-2">
+          <div class="field-group"><div class="field-label">Initial Investment (₹)</div><input class="field-input" id="roi-init" type="number" inputmode="decimal" value="50000"/></div>
+          <div class="field-group"><div class="field-label">Final Value (₹)</div><input class="field-input" id="roi-final" type="number" inputmode="decimal" value="80000"/></div>
+        </div>
+        <div class="field-group"><div class="field-label">Duration (Years)</div><input class="field-input" id="roi-years" type="number" inputmode="decimal" value="2"/></div>
+        <button class="calc-btn" onclick="calcROI()">Calculate ROI</button>
+      </div>
+      <div class="result-box" id="invest-result" style="display:none;">
+        <div class="result-label" id="invest-result-label">Total Value</div>
+        <div class="result-value" id="invest-value"></div>
+        <div class="result-breakdown" id="invest-breakdown"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAX -->
+  <div id="tab-tax" style="display:none;">
+    <div class="panel-card">
+      <div class="section-sub">
+        <button class="sub-tab active" onclick="switchTax('income')">Income Tax</button>
+        <button class="sub-tab" onclick="switchTax('gst')">GST</button>
+        <button class="sub-tab" onclick="switchTax('margin')">Margin</button>
+      </div>
+      <div id="tax-income">
+        <div class="panel-title">Income Tax (New Regime 2024-25)</div>
+        <div class="field-group"><div class="field-label">Annual Income (₹)</div><input class="field-input" id="tax-income-val" type="number" inputmode="decimal" value="800000"/></div>
+        <div class="field-group"><div class="field-label">Age Group</div>
+          <select class="field-select" id="tax-age"><option value="below60">Below 60</option><option value="60to80">60 to 80</option><option value="above80">Above 80</option></select>
+        </div>
+        <button class="calc-btn" onclick="calcTax()">Calculate Tax</button>
+      </div>
+      <div id="tax-gst" style="display:none;">
+        <div class="panel-title">GST Calculator</div>
+        <div class="field-group"><div class="field-label">Amount (₹)</div><input class="field-input" id="gst-amount" type="number" inputmode="decimal" value="10000"/></div>
+        <div class="row-2">
+          <div class="field-group"><div class="field-label">GST Rate</div>
+            <select class="field-select" id="gst-rate"><option value="5">5%</option><option value="12">12%</option><option value="18" selected>18%</option><option value="28">28%</option></select>
+          </div>
+          <div class="field-group"><div class="field-label">Mode</div>
+            <select class="field-select" id="gst-mode"><option value="excl">Add GST</option><option value="incl">Extract GST</option></select>
+          </div>
+        </div>
+        <button class="calc-btn" onclick="calcGST()">Calculate</button>
+      </div>
+      <div id="tax-margin" style="display:none;">
+        <div class="panel-title">Profit / Margin</div>
+        <div class="row-2">
+          <div class="field-group"><div class="field-label">Cost Price (₹)</div><input class="field-input" id="mg-cost" type="number" inputmode="decimal" value="5000"/></div>
+          <div class="field-group"><div class="field-label">Selling Price (₹)</div><input class="field-input" id="mg-sell" type="number" inputmode="decimal" value="7500"/></div>
+        </div>
+        <button class="calc-btn" onclick="calcMargin()">Calculate</button>
+      </div>
+      <div class="result-box" id="tax-result" style="display:none;">
+        <div class="result-label" id="tax-result-label">Result</div>
+        <div class="result-value" id="tax-value"></div>
+        <div class="result-breakdown" id="tax-breakdown"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM STICKY AD -->
+<div class="bottom-ad">
+  <div class="bottom-ad-inner">
+    <!-- REPLACE with real AdMob unit: -->
+    <!-- <ins class="adsbygoogle" style="display:inline-block;width:320px;height:50px" data-ad-client="ca-app-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins> -->
+    <div class="ad-label">Advertisement</div>
+    <span style="font-size:10px;color:var(--muted);">AdMob Bottom Banner — Add your unit ID</span>
+  </div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div id="install-banner">
+  <div class="install-text">Add <span>FinCalc Pro</span> to home screen</div>
+  <button class="install-btn" id="install-btn">Install</button>
+  <button class="dismiss-btn" onclick="dismissBanner()">✕</button>
+</div>
+
+<script>
+// ── BASIC ─────────────────────────────────────────────────────────
+let cur='0',prev='',op='',reset=false,hist=[];
+const fmtN=n=>parseFloat(n).toLocaleString('en-IN',{maximumFractionDigits:8});
+const fmtC=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+
+function upd(){
+  let d=document.getElementById('display');
+  d.textContent=cur.length>15?parseFloat(cur).toExponential(4):fmtN(cur);
+  let l=d.textContent.length;
+  d.className='display-main'+(l>12?' small':'')+(l>18?' xsmall':'');
+}
+
+function inputNum(n){
+  if(reset){cur=n;reset=false;}
+  else cur=cur==='0'?n:cur+n;
+  if(cur.length>20)return;
+  upd();
+}
+function inputDecimal(){
+  if(reset){cur='0.';reset=false;}
+  else if(!cur.includes('.'))cur+='.';
+  upd();
+}
+function inputOp(o){
+  if(op&&!reset)calculate();
+  prev=cur;op=o;reset=true;
+  document.getElementById('expr').textContent=fmtN(prev)+' '+o;
+}
+function calculate(){
+  if(!op||reset)return;
+  let a=parseFloat(prev),b=parseFloat(cur),res;
+  let ex=fmtN(prev)+' '+op+' '+fmtN(cur)+' =';
+  if(op==='+')res=a+b;
+  else if(op==='−')res=a-b;
+  else if(op==='×')res=a*b;
+  else if(op==='÷'){if(b===0){cur='Error';upd();op='';document.getElementById('expr').textContent='';return;}res=a/b;}
+  cur=String(parseFloat(res.toFixed(10)));
+  hist.unshift({expr:ex,val:fmtN(res)});
+  if(hist.length>6)hist.pop();
+  renderHist();
+  document.getElementById('expr').textContent=ex;
+  op='';reset=true;upd();
+}
+function clearAll(){cur='0';prev='';op='';reset=false;document.getElementById('expr').textContent='';upd();}
+function toggleSign(){cur=String(parseFloat(cur)*-1);upd();}
+function percent(){cur=String(parseFloat(cur)/100);upd();}
+function renderHist(){
+  let p=document.getElementById('hist-panel');
+  if(!hist.length){p.style.display='none';return;}
+  p.style.display='block';
+  document.getElementById('hist-list').innerHTML=hist.map(h=>`<div class="history-item"><span class="history-expr">${h.expr}</span><span class="history-val">${h.val}</span></div>`).join('');
+}
+
+// ── LOAN ─────────────────────────────────────────────────────────
+function calcLoan(){
+  let P=+document.getElementById('loan-amount').value;
+  let r=+document.getElementById('loan-rate').value/100/12;
+  let n=+document.getElementById('loan-years').value*12;
+  if(!P||!r||!n)return;
+  let emi=P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+  let total=emi*n,interest=total-P;
+  document.getElementById('loan-emi').textContent=fmtC(emi)+'/mo';
+  document.getElementById('loan-total').textContent=fmtC(total);
+  document.getElementById('loan-interest').textContent=fmtC(interest);
+  document.getElementById('loan-principal').textContent=fmtC(P);
+  document.getElementById('loan-result').style.display='block';
+}
+
+// ── INVEST ───────────────────────────────────────────────────────
+function switchInvest(m){
+  ['sip','lump','fd','roi'].forEach(x=>document.getElementById('invest-'+x).style.display=x===m?'block':'none');
+  document.querySelectorAll('#tab-invest .sub-tab').forEach((b,i)=>b.classList.toggle('active',['sip','lump','fd','roi'][i]===m));
+  document.getElementById('invest-result').style.display='none';
+}
+function showIR(label,value,rows){
+  document.getElementById('invest-result-label').textContent=label;
+  document.getElementById('invest-value').textContent=value;
+  document.getElementById('invest-breakdown').innerHTML=rows.map(r=>`<div class="result-row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+  document.getElementById('invest-result').style.display='block';
+}
+function calcSip(){
+  let m=+document.getElementById('sip-monthly').value;
+  let r=+document.getElementById('sip-rate').value/100/12;
+  let n=+document.getElementById('sip-years').value*12;
+  let val=m*((Math.pow(1+r,n)-1)/r)*(1+r);
+  let inv=m*n;
+  showIR('Estimated Value',fmtC(val),[['Total Invested',fmtC(inv)],['Est. Returns',fmtC(val-inv)],['Wealth Gained',((val-inv)/inv*100).toFixed(1)+'%']]);
+}
+function calcLump(){
+  let P=+document.getElementById('lump-amt').value;
+  let r=+document.getElementById('lump-rate').value/100;
+  let n=+document.getElementById('lump-years').value;
+  let val=P*Math.pow(1+r,n);
+  showIR('Maturity Value',fmtC(val),[['Principal',fmtC(P)],['Gain',fmtC(val-P)],['CAGR',(r*100)+'%']]);
+}
+function calcFD(){
+  let P=+document.getElementById('fd-amt').value;
+  let r=+document.getElementById('fd-rate').value/100;
+  let n=+document.getElementById('fd-years').value;
+  let c=+document.getElementById('fd-comp').value;
+  let val=P*Math.pow(1+r/c,c*n);
+  showIR('Maturity Amount',fmtC(val),[['Principal',fmtC(P)],['Interest Earned',fmtC(val-P)],['Effective Yield',((val-P)/P*100).toFixed(2)+'%']]);
+}
+function calcROI(){
+  let i=+document.getElementById('roi-init').value;
+  let f=+document.getElementById('roi-final').value;
+  let y=+document.getElementById('roi-years').value||1;
+  let roi=(f-i)/i*100;
+  let cagr=(Math.pow(f/i,1/y)-1)*100;
+  showIR('ROI',roi.toFixed(2)+'%',[['Profit/Loss',fmtC(f-i)],['CAGR',cagr.toFixed(2)+'%'],['Multiple',(f/i).toFixed(2)+'x']]);
+}
+
+// ── TAX ──────────────────────────────────────────────────────────
+function switchTax(m){
+  ['income','gst','margin'].forEach(x=>document.getElementById('tax-'+x).style.display=x===m?'block':'none');
+  document.querySelectorAll('#tab-tax .sub-tab').forEach((b,i)=>b.classList.toggle('active',['income','gst','margin'][i]===m));
+  document.getElementById('tax-result').style.display='none';
+}
+function showTR(label,value,rows){
+  document.getElementById('tax-result-label').textContent=label;
+  document.getElementById('tax-value').textContent=value;
+  document.getElementById('tax-breakdown').innerHTML=rows.map(r=>`<div class="result-row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+  document.getElementById('tax-result').style.display='block';
+}
+function calcTax(){
+  let income=+document.getElementById('tax-income-val').value;
+  let tax=0;
+  let slabs=[{l:300000,r:0},{l:600000,r:0.05},{l:900000,r:0.10},{l:1200000,r:0.15},{l:1500000,r:0.20},{l:Infinity,r:0.30}];
+  let prev=0;
+  for(let s of slabs){if(income<=prev)break;tax+=(Math.min(income,s.l)-prev)*s.r;prev=s.l;}
+  let cess=tax*0.04,total=tax+cess;
+  showTR('Total Tax Payable',fmtC(total),[['Income Tax',fmtC(tax)],['Health & Edu Cess (4%)',fmtC(cess)],['Effective Rate',(total/income*100).toFixed(2)+'%'],['Monthly In-hand',fmtC((income-total)/12)]]);
+}
+function calcGST(){
+  let amt=+document.getElementById('gst-amount').value;
+  let rate=+document.getElementById('gst-rate').value/100;
+  let mode=document.getElementById('gst-mode').value;
+  let gst,base,total;
+  if(mode==='excl'){base=amt;gst=amt*rate;total=amt+gst;}
+  else{total=amt;base=amt/(1+rate);gst=total-base;}
+  showTR('GST Amount',fmtC(gst),[['Base Amount',fmtC(base)],['CGST ('+(rate*100/2)+'%)',fmtC(gst/2)],['SGST ('+(rate*100/2)+'%)',fmtC(gst/2)],['Total (incl. GST)',fmtC(total)]]);
+}
+function calcMargin(){
+  let cost=+document.getElementById('mg-cost').value;
+  let sell=+document.getElementById('mg-sell').value;
+  let profit=sell-cost,margin=profit/sell*100,markup=profit/cost*100;
+  showTR(profit>=0?'Profit':'Loss',fmtC(Math.abs(profit)),[['Gross Margin',margin.toFixed(2)+'%'],['Markup',markup.toFixed(2)+'%'],['Cost',fmtC(cost)],['Selling Price',fmtC(sell)]]);
+}
+
+function switchTab(t){
+  ['basic','loan','invest','tax'].forEach(x=>document.getElementById('tab-'+x).style.display=x===t?'block':'none');
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['basic','loan','invest','tax'][i]===t));
+}
+
+// ── PWA INSTALL ───────────────────────────────────────────────────
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('install-banner').classList.add('show');
+});
+document.getElementById('install-btn').addEventListener('click',()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(()=>{deferredPrompt=null;dismissBanner();});
+});
+function dismissBanner(){document.getElementById('install-banner').classList.remove('show');}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+
+upd();
+</script>
+</body>
+</html>
